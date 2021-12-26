@@ -1,19 +1,24 @@
+use std::ops::Div;
+
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use plotters::prelude::{BitMapBackend, CandleStick, ChartBuilder, GREEN, IntoDrawingArea, IntoFont, RED, WHITE};
+use plotters_canvas::CanvasBackend;
 
 use crate::model::crypto_compare::Histohour;
-use std::ops::Div;
 
 const Y_SCALE_FACTOR: f32 = 0.1;
 
 // TODO map error to internal
 pub fn plot(histogram: &Histohour) -> Result<(), Box<dyn std::error::Error>> {
+    let canvas = CanvasBackend::new("canvas_id").expect("cannot find canvas")
+        .into_drawing_area();
+
     let root = BitMapBackend::new("plotters-data/candles.png", (1024, 768))
         .into_drawing_area();
     root.fill(&WHITE)?;
 
     let (from_date, to_date) = (
-        // TODO Add the duration into a enum typed histogram?
+        // TODO Add the duration into an enum typed histogram?
         parse_time(histogram.data.time_from) - Duration::hours(1).div(2),
         parse_time(histogram.data.time_to) + Duration::hours(1).div(2)
     );
@@ -55,3 +60,56 @@ fn min_max(histogram: &Histohour) -> (f32, f32) {
 fn parse_time(t: i64) -> DateTime<Utc> {
     DateTime::from_utc(NaiveDateTime::from_timestamp(t, 0), Utc)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::model::crypto_compare::{Histohour, Histogram, HistoData};
+    use assert_approx_eq::assert_approx_eq;
+
+
+    #[test]
+    fn limits_are_found() {
+        let histogram = Histohour {
+            response: "".to_string(),
+            has_warning: false,
+            data: Histogram {
+                time_from: 0,
+                time_to: 0,
+                data: vec![
+                    HistoData {
+                        time: 0,
+                        high: 12.0,
+                        low: 1.0,
+                        open: 0.0,
+                        close: 0.0,
+                        conversion_type: "".to_string(),
+                        conversion_symbol: "".to_string(),
+                    },
+                    HistoData {
+                        time: 0,
+                        high: 25.0,
+                        low: 22.0,
+                        open: 0.0,
+                        close: 0.0,
+                        conversion_type: "".to_string(),
+                        conversion_symbol: "".to_string(),
+                    },
+                    HistoData {
+                        time: 0,
+                        high: 24.0,
+                        low: 3.0,
+                        open: 0.0,
+                        close: 0.0,
+                        conversion_type: "".to_string(),
+                        conversion_symbol: "".to_string(),
+                    }
+                ],
+            },
+        };
+        
+        let (min, max) = super::min_max(&histogram);
+        assert_approx_eq!(min, -1f32);
+        assert_approx_eq!(max, 27f32);
+    }
+}
+

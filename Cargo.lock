@@ -7,11 +7,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
 
 [[package]]
+name = "assert_approx_eq"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c07dab4369547dbe5114677b33fbbf724971019f3818172d59a97a61c774ffd"
+
+[[package]]
 name = "assets"
 version = "0.1.0"
 dependencies = [
+ "assert_approx_eq",
  "chrono",
  "plotters",
+ "plotters-canvas",
  "reqwest",
  "serde",
 ]
@@ -844,6 +852,18 @@ dependencies = [
  "gif",
  "image",
  "plotters-backend",
+]
+
+[[package]]
+name = "plotters-canvas"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "498a82bf654581fa4df6c1bd73e56f8556bdeec5eca5a0989d170ca0728ccace"
+dependencies = [
+ "js-sys",
+ "plotters-backend",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
